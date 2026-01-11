@@ -1,7 +1,41 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.cache/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment variables (contains API keys!)
 .env
 
-# Ignore the output video from Git but not videos you import into src/.
-out
+# Output videos (large files, regenerate locally)
+out/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
+
+# SQLite database (local state)
+*.db
+
+# IDE
+.vscode/
+.idea/
+
+# Remotion cache
+.remotion/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Frames extracted for review (temporary)
+out/frames/
