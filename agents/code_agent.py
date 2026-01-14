@@ -4,7 +4,7 @@ Code Agent
 The code generation agent that:
 - Receives instructions from Supervisor Agent
 - Uses OpenRouter API (Mistral Devstral model) to generate Remotion TSX code
-- Writes the generated code to Composition.tsx
+- Writes the generated code to CodeReel.tsx
 - Returns success/failure status
 """
 
@@ -46,7 +46,7 @@ class CodeAgent:
         self.model = "mistralai/devstral-2512:free"
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         
-        self.composition_path = os.path.join(self.project_root, "src", "Composition.tsx")
+        self.code_reel_path = os.path.join(self.project_root, "src", "CodeReel.tsx")
         
         print(f"[CODE AGENT] Initialized with model: {self.model}")
     
@@ -72,9 +72,10 @@ class CodeAgent:
 IMPORTANT RULES:
 1. Output ONLY the code. No explanations, no markdown code blocks, no comments before or after.
 2. Start directly with the import statement.
-3. Export the component as `MyComposition`.
+3. Export the component as `CodeReel`.
 4. Only import what you use - no unused imports.
 5. Use Remotion's AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig as needed.
+6. Do NOT include background image - it's handled by the parent Composition component.
 6. The video resolution is 1080x1920 (vertical reel format).
 7. Make animations smooth and engaging.
 8. Follow the timing/pacing exactly as specified in the instructions."""
@@ -185,9 +186,9 @@ IMPORTANT RULES:
         
         # Write to file
         try:
-            with open(self.composition_path, 'w', encoding='utf-8') as f:
+            with open(self.code_reel_path, 'w', encoding='utf-8') as f:
                 f.write(code)
-            print(f"[CODE AGENT] ✓ Code written to {self.composition_path}")
+            print(f"[CODE AGENT] ✓ Code written to {self.code_reel_path}")
             return True
         except Exception as e:
             print(f"[CODE AGENT] ✗ Failed to write code: {e}")

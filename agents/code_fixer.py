@@ -147,9 +147,9 @@ def fix_remotion_code(code: str) -> str:
     return fixed
 
 
-def fix_composition_file(project_root: str) -> bool:
+def fix_code_reel_file(project_root: str) -> bool:
     """
-    Fix the Composition.tsx file in place.
+    Fix the CodeReel.tsx file in place.
     
     Args:
         project_root: Path to the project root
@@ -157,16 +157,16 @@ def fix_composition_file(project_root: str) -> bool:
     Returns:
         True if fixes were applied, False otherwise
     """
-    composition_path = os.path.join(project_root, "src", "Composition.tsx")
+    code_reel_path = os.path.join(project_root, "src", "CodeReel.tsx")
     
     try:
-        with open(composition_path, 'r', encoding='utf-8') as f:
+        with open(code_reel_path, 'r', encoding='utf-8') as f:
             original_code = f.read()
         
         fixed_code = fix_remotion_code(original_code)
         
         if fixed_code != original_code:
-            with open(composition_path, 'w', encoding='utf-8') as f:
+            with open(code_reel_path, 'w', encoding='utf-8') as f:
                 f.write(fixed_code)
             return True
         

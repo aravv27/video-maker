@@ -187,12 +187,13 @@ DESIGN PRINCIPLES (FOLLOW STRICTLY):
 CODE REQUIREMENTS:
 ================================================================================
 1. Generate a complete, working Remotion component
-2. Export the component as `MyComposition`
+2. Export the component as `CodeReel`
 3. Import from 'remotion': AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig
 4. Only import what you use (no unused imports)
 5. The component must render correctly at 1080x1920 resolution
 6. Make the animation smooth and engaging
 7. Follow the pacing/timing exactly as specified
+8. Do NOT include any background image - the parent Composition handles that
 
 OUTPUT FORMAT:
 --------------
