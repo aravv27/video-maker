@@ -1,0 +1,48 @@
+{
+  "id": "L005",
+  "name": "Quote Centered",
+  "description": "Single impactful quote or statement centered on screen. Elegant fade-in with optional attribution. Best for quotes, key takeaways, dramatic statements.",
+  "template_file": "L005_template.tsx",
+  "tags": ["quote", "centered", "minimal", "dramatic", "statement"],
+  "slots": [
+    {
+      "name": "quote",
+      "type": "text",
+      "required": true,
+      "description": "The main quote or statement"
+    },
+    {
+      "name": "attribution",
+      "type": "text",
+      "required": false,
+      "description": "Quote attribution (e.g., '— Steve Jobs')"
+    },
+    {
+      "name": "quoteColor",
+      "type": "color",
+      "required": false,
+      "default": "#FFFFFF",
+      "description": "Color for quote text"
+    },
+    {
+      "name": "fontSize",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "description": "Font size for quote"
+    },
+    {
+      "name": "showQuoteMarks",
+      "type": "text",
+      "required": false,
+      "default": "true",
+      "description": "Whether to show decorative quote marks"
+    }
+  ],
+  "timing": {
+    "fade_in_duration": 1,
+    "hold_duration": 3,
+    "fade_out_duration": 0.5
+  },
+  "example_output": "Quote fades in centered with large decorative quote marks. Attribution appears below after delay."
+}

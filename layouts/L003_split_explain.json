@@ -1,0 +1,40 @@
+{
+  "id": "L003",
+  "name": "Split Explain",
+  "description": "Split screen layout with code on left and explanation text on right. Text syncs with code highlights. Best for walkthroughs, explanations, before/after comparisons.",
+  "template_file": "L003_template.tsx",
+  "tags": ["code", "explanation", "split", "tutorial", "walkthrough"],
+  "slots": [
+    {
+      "name": "code",
+      "type": "code",
+      "required": true,
+      "description": "Code snippet for the left panel"
+    },
+    {
+      "name": "explanations",
+      "type": "array",
+      "required": true,
+      "description": "Array of {text: string, start: number, highlightLine: number}"
+    },
+    {
+      "name": "language",
+      "type": "text",
+      "required": false,
+      "default": "javascript",
+      "description": "Programming language for syntax highlighting"
+    },
+    {
+      "name": "splitRatio",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Left panel width ratio (0.3 to 0.7)"
+    }
+  ],
+  "timing": {
+    "min_duration": 8,
+    "seconds_per_explanation": 2
+  },
+  "example_output": "Screen splits 50/50. Code on left with line highlights, explanation text appears on right synced with highlights."
+}

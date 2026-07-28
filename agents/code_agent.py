@@ -6,13 +6,22 @@ The code generation agent that:
 - Uses OpenRouter API (Mistral Devstral model) to generate Remotion TSX code
 - Writes the generated code to CodeReel.tsx
 - Returns success/failure status
+
+NEW: Layout-based generation
+- Receives a layout template + content
+- Fills placeholders in the template
+- Much more constrained and deterministic
 """
 
 import os
+import re
 import requests
 import json
-from typing import Optional
+from typing import Optional, Dict, Any
 from dotenv import load_dotenv
+
+from layout_schema import Layout
+from layout_registry import LayoutRegistry
 
 
 class CodeAgent:
@@ -193,7 +202,252 @@ IMPORTANT RULES:
         except Exception as e:
             print(f"[CODE AGENT] ✗ Failed to write code: {e}")
             return False
+    
+    # ================================================================
+    # LAYOUT-BASED GENERATION (NEW)
+    # ================================================================
+    
+    def generate_from_layout(self, layout: Layout, content: Dict[str, Any]) -> bool:
+        """
+        Generate code by filling a layout template with content.
+        
+        This is the NEW deterministic generation method:
+        1. Load the layout's TSX template
+        2. Ask AI to fill the placeholders with provided content
+        3. Write the result to CodeReel.tsx
+        
+        Args:
+            layout: The Layout object with template info
+            content: Dict mapping slot names to values
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        print(f"[CODE AGENT] Filling layout: {layout.id} ({layout.name})")
+        
+        # Load template
+        registry = LayoutRegistry(os.path.join(self.project_root, "layouts"))
+        template = registry.get_template_content(layout)
+        
+        if template is None:
+            print(f"[CODE AGENT] ✗ Could not load template for {layout.id}")
+            return False
+        
+        # Validate content against layout slots
+        is_valid, errors = layout.validate_content(content)
+        if not is_valid:
+            print(f"[CODE AGENT] ⚠ Content validation warnings: {errors}")
+        
+        # Prepare slot-filling prompt
+        prompt = self._prepare_layout_prompt(layout, template, content)
+        
+        # Generate filled code
+        raw_code = self._make_api_call(prompt)
+        
+        if raw_code is None:
+            print("[CODE AGENT] ✗ Failed to fill template")
+            return False
+        
+        # Clean and write
+        code = self._clean_code(raw_code)
+        
+        if not code.startswith("import"):
+            print("[CODE AGENT] ✗ Filled code doesn't start with import")
+            return False
+        
+        try:
+            with open(self.code_reel_path, 'w', encoding='utf-8') as f:
+                f.write(code)
+            print(f"[CODE AGENT] ✓ Layout-based code written to {self.code_reel_path}")
+            return True
+        except Exception as e:
+            print(f"[CODE AGENT] ✗ Failed to write code: {e}")
+            return False
+    
+    def _prepare_layout_prompt(
+        self, 
+        layout: Layout, 
+        template: str, 
+        content: Dict[str, Any]
+    ) -> str:
+        """
+        Prepare the prompt for layout slot-filling.
+        
+        The AI's job is constrained to:
+        1. Replace placeholders with content values
+        2. Keep the template structure intact
+        3. Make minor adjustments if needed (like array formatting)
+        """
+        # Build content values section
+        content_str = "CONTENT VALUES TO INSERT:\n"
+        for slot in layout.slots:
+            value = content.get(slot.name, slot.default)
+            if value is not None:
+                content_str += f"  {slot.name}: {json.dumps(value)}\n"
+        
+        # Build placeholder mapping
+        placeholder_info = "PLACEHOLDERS TO REPLACE:\n"
+        placeholder_info += "  {{LINES}} → the lines array\n"
+        placeholder_info += "  {{CHARS_PER_SECOND}} → number value\n"
+        placeholder_info += "  {{FONT_FAMILY}} → string value (in quotes)\n"
+        placeholder_info += "  {{HOOK_FONT_SIZE}} → number value\n"
+        placeholder_info += "  {{BODY_FONT_SIZE}} → number value\n"
+        placeholder_info += "  And similar patterns for other slots\n"
+        
+        prompt = f"""TASK: Fill this Remotion template with the provided content values.
 
+TEMPLATE (with placeholders like {{{{PLACEHOLDER}}}}):
+```tsx
+{template}
+```
+
+{content_str}
+
+{placeholder_info}
+
+RULES:
+1. Replace ALL placeholders with the corresponding content values
+2. Keep the template structure EXACTLY as is
+3. For array values, format as valid TypeScript arrays
+4. For string values, use proper quotes
+5. For number values, use raw numbers (no quotes)
+6. Output ONLY the complete filled code - no explanations
+7. Start with the import statement
+
+OUTPUT: Complete TypeScript/TSX code with all placeholders filled."""
+
+        return prompt
+    
+    def generate_from_layout_simple(self, layout_id: str, content: Dict[str, Any]) -> bool:
+        """
+        Convenience method to generate from just a layout ID.
+        
+        Args:
+            layout_id: The layout ID (e.g., "L001")
+            content: Slot values
+            
+        Returns:
+            True if successful
+        """
+        registry = LayoutRegistry(os.path.join(self.project_root, "layouts"))
+        layout = registry.get_by_id(layout_id)
+        
+        if layout is None:
+            print(f"[CODE AGENT] ✗ Layout not found: {layout_id}")
+            return False
+        
+        return self.generate_from_layout(layout, content)
+    
+    # ================================================================
+    # MULTI-SCENE SUPPORT
+    # ================================================================
+    
+    def generate_scene(self, layout_id: str, content: Dict[str, Any], scene_index: int) -> Optional[str]:
+        """
+        Generate a single scene TSX file for multi-scene videos.
+        
+        Args:
+            layout_id: The layout ID
+            content: Content for this scene
+            scene_index: Position in video (0, 1, 2, ...)
+            
+        Returns:
+            Path to generated scene file, or None if failed
+        """
+        print(f"[CODE AGENT] Generating scene {scene_index} with layout {layout_id}")
+        
+        # Load layout
+        registry = LayoutRegistry(os.path.join(self.project_root, "layouts"))
+        layout = registry.get_by_id(layout_id)
+        
+        if layout is None:
+            print(f"[CODE AGENT] ✗ Layout not found: {layout_id}")
+            return None
+        
+        # Load template
+        template = registry.get_template_content(layout)
+        if template is None:
+            print(f"[CODE AGENT] ✗ Template not found for {layout_id}")
+            return None
+        
+        # Prepare slot-filling prompt
+        prompt = self._prepare_scene_prompt(layout, template, content, scene_index)
+        
+        # Generate code
+        raw_code = self._make_api_call(prompt)
+        
+        if raw_code is None:
+            print(f"[CODE AGENT] ✗ Failed to generate scene {scene_index}")
+            return None
+        
+        # Clean code
+        code = self._clean_code(raw_code)
+        
+        if not code.startswith("import"):
+            print(f"[CODE AGENT] ✗ Scene {scene_index} code doesn't start with import")
+            return None
+        
+        # Write to scene file
+        scene_dir = os.path.join(self.project_root, "src", "scenes")
+        os.makedirs(scene_dir, exist_ok=True)
+        
+        scene_filename = f"Scene_{scene_index:03d}.tsx"
+        scene_path = os.path.join(scene_dir, scene_filename)
+        
+        try:
+            with open(scene_path, 'w', encoding='utf-8') as f:
+                f.write(code)
+            print(f"[CODE AGENT] ✓ Scene {scene_index} written to {scene_path}")
+            return scene_path
+        except Exception as e:
+            print(f"[CODE AGENT] ✗ Failed to write scene: {e}")
+            return None
+    
+    def _prepare_scene_prompt(
+        self,
+        layout: 'Layout',
+        template: str,
+        content: Dict[str, Any],
+        scene_index: int
+    ) -> str:
+        """Prepare prompt for scene generation"""
+        
+        # Build content values section
+        content_str = "CONTENT VALUES TO INSERT:\n"
+        for slot in layout.slots:
+            value = content.get(slot.name, slot.default)
+            if value is not None:
+                content_str += f"  {slot.name}: {json.dumps(value)}\n"
+        
+        # Add lines if present in content
+        if "lines" in content:
+            content_str += f"  lines: {json.dumps(content['lines'])}\n"
+        
+        # Scene-specific component name
+        component_name = f"Scene_{scene_index:03d}"
+        
+        prompt = f"""TASK: Generate a Remotion scene component from this template.
+
+SCENE: {component_name} (scene {scene_index} of the video)
+
+TEMPLATE:
+```tsx
+{template}
+```
+
+{content_str}
+
+RULES:
+1. Replace ALL placeholders with content values
+2. Change the component export name to "{component_name}"
+3. Keep the template animation/styling logic
+4. For array values, format as valid TypeScript arrays
+5. Output ONLY the complete code - no explanations
+6. Start with import statements
+
+OUTPUT: Complete TypeScript/TSX scene component."""
+
+        return prompt
 
 # ============================================================
 # TESTING

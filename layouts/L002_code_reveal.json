@@ -1,0 +1,55 @@
+{
+  "id": "L002",
+  "name": "Code Reveal",
+  "description": "Shows code snippet with syntax highlighting. Lines reveal progressively with optional line highlighting. Best for programming tutorials, tech content, code tips.",
+  "template_file": "L002_template.tsx",
+  "tags": ["code", "programming", "tutorial", "reveal", "syntax-highlight"],
+  "slots": [
+    {
+      "name": "code",
+      "type": "code",
+      "required": true,
+      "description": "The code snippet to display"
+    },
+    {
+      "name": "language",
+      "type": "text",
+      "required": false,
+      "default": "javascript",
+      "description": "Programming language for syntax highlighting"
+    },
+    {
+      "name": "highlightLines",
+      "type": "array",
+      "required": false,
+      "default": [],
+      "description": "Array of line numbers to highlight"
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "required": false,
+      "description": "Optional title shown above code"
+    },
+    {
+      "name": "revealSpeed",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Lines revealed per second"
+    },
+    {
+      "name": "theme",
+      "type": "text",
+      "required": false,
+      "default": "dark",
+      "description": "Color theme: dark or light"
+    }
+  ],
+  "timing": {
+    "min_duration": 5,
+    "seconds_per_line": 0.5,
+    "highlight_duration": 2
+  },
+  "example_output": "Code appears line by line in a terminal-style container. Key lines pulse with highlight color."
+}

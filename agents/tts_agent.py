@@ -20,7 +20,7 @@ class TTSAgent:
     Generates separate audio files for each text segment to sync with video.
     """
     
-    def __init__(self, voice: str = "en-US-AriaNeural"):
+    def __init__(self, voice: str = "en-US-AriaNeural", audio_dir: str = None):
         """
         Initialize TTS Agent.
         
@@ -30,15 +30,22 @@ class TTSAgent:
                 - en-US-JennyNeural (female, warm)
                 - en-US-GuyNeural (male, natural)
                 - en-IN-NeerjaNeural (female, Indian English)
+            audio_dir: Custom directory to save audio files. 
+                      If not provided, uses public/audio/
         """
         self.voice = voice
         self.project_root = os.path.dirname(os.path.dirname(__file__))
-        self.audio_dir = os.path.join(self.project_root, "public", "audio")
+        
+        if audio_dir is not None:
+            self.audio_dir = audio_dir
+        else:
+            self.audio_dir = os.path.join(self.project_root, "public", "audio")
         
         # Ensure audio directory exists
         os.makedirs(self.audio_dir, exist_ok=True)
         
         print(f"[TTS AGENT] Initialized with voice: {self.voice}")
+        print(f"[TTS AGENT] Audio dir: {self.audio_dir}")
     
     async def _generate_single(self, text: str, output_path: str):
         """Generate a single audio file."""

@@ -1,0 +1,49 @@
+{
+  "id": "L001",
+  "name": "Hook + Typewriter",
+  "description": "Text stacks vertically. First line (hook) fades in large, remaining lines typewrite and stay on screen. Best for motivational content, simple messaging, cosmetics/lifestyle reels.",
+  "template_file": "L001_template.tsx",
+  "tags": ["text-only", "motivational", "simple", "stacking", "typewriter", "hook"],
+  "slots": [
+    {
+      "name": "lines",
+      "type": "array",
+      "required": true,
+      "description": "Array of line objects: {text: string, start: number, color: string, isHook: boolean}"
+    },
+    {
+      "name": "charsPerSecond",
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "description": "Typewriter speed in characters per second"
+    },
+    {
+      "name": "fontFamily",
+      "type": "text",
+      "required": false,
+      "default": "\"Playfair Display\", Georgia, serif",
+      "description": "CSS font-family for text"
+    },
+    {
+      "name": "hookFontSize",
+      "type": "number",
+      "required": false,
+      "default": 72,
+      "description": "Font size in pixels for hook text"
+    },
+    {
+      "name": "bodyFontSize",
+      "type": "number",
+      "required": false,
+      "default": 56,
+      "description": "Font size in pixels for body text"
+    }
+  ],
+  "timing": {
+    "min_duration": 6,
+    "seconds_per_line": 1.5,
+    "hook_fade_frames": 15
+  },
+  "example_output": "Lines appear one by one, stacking vertically. Hook fades in with scale animation, other lines typewrite with blinking cursor."
+}

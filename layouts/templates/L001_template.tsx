@@ -1,5 +1,19 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 
+/**
+ * Layout L001: Hook + Typewriter
+ * 
+ * Text stacks vertically. First line (hook) fades in large,
+ * remaining lines typewrite character by character and stay on screen.
+ * 
+ * SLOTS:
+ * - lines: Array of {text, start, color, isHook}
+ * - charsPerSecond: Typewriter speed (default: 20)
+ * - fontFamily: CSS font-family
+ * - hookFontSize: Font size for hook (default: 72)
+ * - bodyFontSize: Font size for body (default: 56)
+ */
+
 interface Line {
   text: string;
   start: number;
@@ -7,18 +21,15 @@ interface Line {
   isHook: boolean;
 }
 
-const lines: Line[] = [
-  { text: "Your skin deserves better.", start: 0.0, color: "#000000", isHook: true },
-  { text: "Stop hiding.", start: 2.0, color: "#000000", isHook: false },
-  { text: "Start glowing.", start: 3.5, color: "#000000", isHook: false },
-  { text: "3 ingredients.", start: 5.0, color: "#000000", isHook: false },
-  { text: "Zero chemicals.", start: 6.5, color: "#000000", isHook: false },
-  { text: "Try it today.", start: 8.0, color: "#000000", isHook: false }
-];
-const charsPerSecond = 20;
-const fontFamily = "\"Playfair Display\", Georgia, serif";
-const hookFontSize = 72;
-const bodyFontSize = 56;
+// ============================================
+// SLOT VALUES - AI FILLS THESE
+// ============================================
+const lines: Line[] = {{LINES}};
+const charsPerSecond = {{CHARS_PER_SECOND}};
+const fontFamily = '{{FONT_FAMILY}}';
+const hookFontSize = {{HOOK_FONT_SIZE}};
+const bodyFontSize = {{BODY_FONT_SIZE}};
+// ============================================
 
 export const CodeReel = () => {
   const frame = useCurrentFrame();
@@ -36,16 +47,16 @@ export const CodeReel = () => {
     }}>
       {lines.map((line, index) => {
         const startFrame = line.start * fps;
-
+        
         if (frame < startFrame) return null;
-
+        
         const framesSinceStart = frame - startFrame;
         const secondsSinceStart = framesSinceStart / fps;
-
+        
         let displayText: string;
         let opacity: number;
         let scale: number;
-
+        
         if (line.isHook) {
           displayText = line.text;
           opacity = interpolate(frame, [startFrame, startFrame + 15], [0, 1], { extrapolateRight: 'clamp' });

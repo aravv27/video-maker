@@ -1,0 +1,26 @@
+[
+  {
+    "start": 0,
+    "path": "audio/segment_0.mp3"
+  },
+  {
+    "start": 2,
+    "path": "audio/segment_1.mp3"
+  },
+  {
+    "start": 3.5,
+    "path": "audio/segment_2.mp3"
+  },
+  {
+    "start": 5,
+    "path": "audio/segment_3.mp3"
+  },
+  {
+    "start": 6.5,
+    "path": "audio/segment_4.mp3"
+  },
+  {
+    "start": 8,
+    "path": "audio/segment_5.mp3"
+  }
+]

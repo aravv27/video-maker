@@ -28,6 +28,8 @@ class VideoInput:
     exit_animation: Optional[str] = None     # fadeOut, scaleDown
     background_color: Optional[str] = None   # e.g., '#0a0a0a'
     hook_color: Optional[str] = None         # e.g., '#FFD700'
+    # Multi-scene mode
+    multi_scene: bool = False                # If True, AI picks multiple layouts
 
 
 class SupervisorAgent:

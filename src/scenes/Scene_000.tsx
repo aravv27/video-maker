@@ -20,7 +20,7 @@ const fontFamily = "\"Playfair Display\", Georgia, serif";
 const hookFontSize = 72;
 const bodyFontSize = 56;
 
-export const CodeReel = () => {
+export const Scene_000 = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 

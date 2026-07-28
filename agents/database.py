@@ -258,18 +258,33 @@ class VideoDatabase:
 
 
 # ============================================================
-# HELPER: Generate unique video filename
+# HELPER: Generate unique video filename and timestamp ID
 # ============================================================
 
-def generate_video_filename(prefix: str = "video") -> str:
+def generate_timestamp_id() -> str:
+    """
+    Generate a unique timestamp ID for organizing files.
+    
+    Returns:
+        Timestamp string like '20240115_143052'
+    """
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def generate_video_filename(prefix: str = "video", timestamp_id: str = None) -> str:
     """
     Generate a unique video filename with timestamp
+    
+    Args:
+        prefix: Filename prefix (default: "video")
+        timestamp_id: Optional timestamp to use. If not provided, generates new one.
     
     Returns:
         Filename like 'video_20240115_143052.mp4'
     """
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{prefix}_{timestamp}.mp4"
+    if timestamp_id is None:
+        timestamp_id = generate_timestamp_id()
+    return f"{prefix}_{timestamp_id}.mp4"
 
 
 # ============================================================
